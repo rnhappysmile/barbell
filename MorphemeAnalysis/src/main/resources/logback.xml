@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- LOG_FILE, FILE_LOG_PATTERN property 생성 -->
+    <property name="LOG_DIR" value="./logs" />
+    <property name="LOG_FILE" value="MorephemeAnalysis.log"/>
+    <property name="FILE_LOG_PATTERN" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- 로그 출력 패턴 지정 -->
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- CONSOLE name 을 가진 appender 설정 -->
+    <appender name="ROLLING-FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- property에 설정한 value 값 입력 -->
+        <file>${LOG_DIR}/${LOG_FILE}</file>
+        <!-- 날짜 기준에 따라 로그파일 롤링 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 롤링될 로그 파일 패턴 지정 -->
+            <fileNamePattern>${LOG_DIR}/%d{yyyy-MM-dd}_${LOG_FILE}</fileNamePattern>
+            <!-- maxHistory=14이면 14일 이후의 로그파일 삭제  -->
+            <maxHistory>60</maxHistory>
+            <!-- 로그파일들의 총 용량 제한 -->
+            <totalSizeCap>20GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <!-- property에 설정한 value 으로 로그 출력 패턴 지정 -->
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="ROLLING-FILE" />
+    </root>
+
+</configuration>

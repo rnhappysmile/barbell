@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Parser.MorphemeAnalysis.mapper.FeedMapper">
+    <select id="selectNotCategory" resultType="Parser.MorphemeAnalysis.domain.DbFeed">
+        SELECT * FROM feed where category = ''
+    </select>
+
+    <update id="updateCategory">
+        UPDATE feed set category = #{category}
+        where link = #{link}
+    </update>
+
+</mapper>
