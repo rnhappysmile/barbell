@@ -28,13 +28,13 @@ public class Analysis {
 
         List<DbFeed> listFeed = feedMapper.selectNotCategory();
 
-//        for(DbFeed dbfeed : listFeed) {
-        log.info(listFeed.get(2).getMain_text());
+        for(DbFeed dbfeed : listFeed) {
+            log.info(dbfeed.getMain_text());
 
-        morpheme= analysis(listFeed.get(2).getMain_text());
-        feedMapper.updateCategory(listFeed.get(0).getLink(), morpheme);
-
-//        }
+            morpheme= analysis(dbfeed.getMain_text());
+            log.info(dbfeed.getLink() + " : " + morpheme);
+            feedMapper.updateCategory(dbfeed.getLink(), morpheme);
+        }
     }
 
     private String analysis(String input) {
@@ -45,50 +45,73 @@ public class Analysis {
             long startTime = System.currentTimeMillis();
             List<Token> tokenList = analyzeResultList.getTokenList();
             long endTime = System.currentTimeMillis();
+            StringBuilder result = new StringBuilder();
 
             log.info("time :" + (endTime - startTime));
 
             // 1. print each tokens by getTokenList()
-            log.info("==========print 'getTokenList()'==========");
-            for (Token token : tokenList) {
+//            log.info("==========print 'getTokenList()'==========");
+//            for (Token token : tokenList) {
 //            log.info(token);
-                log.info(token.getMorph() + "/" + token.getPos() + "(" + token.getBeginIndex() + "," + token.getEndIndex() + ")");
+//                log.info(token.getMorph() + "/" + token.getPos() + "(" + token.getBeginIndex() + "," + token.getEndIndex() + ")");
 //            log.info();
-            }
+//            }
 
             // 2. print nouns
             log.info("==========print 'getNouns()'==========");
             log.info(""+analyzeResultList.getNouns());
             log.info("");
 
-            // 3. print analyzed result as pos-tagged text
-            log.info("==========print 'getPlainText()'==========");
-            log.info(""+analyzeResultList.getPlainText());
-            log.info("");
-
-            // 4. print analyzed result as list
-            log.info("==========print 'getList()'==========");
-            log.info(""+analyzeResultList.getList());
-            log.info("");
-
-            // 5. print morphes with selected pos
-            log.info("==========print 'getMorphesByTags()'==========");
-            log.info(""+analyzeResultList.getMorphesByTags("NN", "NP", "NNG", "NNP", "NNB", "NR"));
-            List<String> morphesByTags = analyzeResultList.getMorphesByTags("NN", "NP", "NNG", "NNP", "NNB", "NR");
+            List<String> nouns = analyzeResultList.getNouns();
             HashMap<String, Integer> hm = new HashMap<>();
-            for (String tag : morphesByTags) {
+            for (String tag : nouns) {
                 hm.put(tag, 1 + hm.getOrDefault(tag, 0));
             }
 
-            List<String> keySetList = new ArrayList<>(hm.keySet());
+            // 3. print analyzed result as pos-tagged text
+//            log.info("==========print 'getPlainText()'==========");
+//            log.info(""+analyzeResultList.getPlainText());
+//            log.info("");
 
-            Collections.sort(keySetList, (o1, o2) -> (hm.get(o2).compareTo(hm.get(o1))));
+            // 4. print analyzed result as list
+//            log.info("==========print 'getList()'==========");
+//            log.info(""+analyzeResultList.getList());
+//            log.info("");
+
+            // 5. print morphes with selected pos
+//            log.info("==========print 'getMorphesByTags()'==========");
+//            log.info(""+analyzeResultList.getMorphesByTags("NN", "NP", "NNG", "NNP", "NNB", "NR"));
+//            List<String> morphesByTags = analyzeResultList.getMorphesByTags("NN", "NP", "NNG", "NNP", "NNB", "NR");
+
+            List<String> keySetList = new ArrayList<>(hm.keySet());
 
             for (int i = 0; i < 3; i++) {
                 log.info(keySetList.get(i));
             }
 
-            return keySetList.get(0);
+            Collections.sort(keySetList, (o1, o2) -> (hm.get(o2).compareTo(hm.get(o1))));
+
+            // 근데 만약 ? 3개 이하면 어떻게 하지 ?
+
+            int hmSize = hm.size();
+            if(hmSize > 3) {
+                hmSize = 3;
+            }
+
+            for (int i = 0; i < hmSize; i++) {
+                log.info(keySetList.get(i));
+                result.append(keySetList.get(i));
+
+                if(i != hmSize - 1) {
+                    result.append(":");
+                }
+            }
+            // KeySetList에서 중복의 개수가 최대인 Top3만 리털 하게 만들어야 한다.
+            // 혹은 KeySetList 전체를 리턴 해서, 리턴 받을 후 Top3만 확인 하도록 해야 한다.
+
+            System.out.println("result.toString() : " + result.toString());
+
+            return result.toString();
         } catch (Exception e) {
             log.info(""+e);
         }
